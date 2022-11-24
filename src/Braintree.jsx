@@ -1,14 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Api from './api';
-import { Context } from './context'
+import Api from './BraintreeClientApi';
+import { Context } from './Context'
 
 export default class Braintree extends React.Component {
   static propTypes = {
     children: PropTypes.node.isRequired,
     onAuthorizationSuccess: PropTypes.func,
     authorization: PropTypes.string,
-    getTokenRef: PropTypes.func,
+    getTokenizeHostedFieldsRef: PropTypes.func,
+    onToken: PropTypes.func,
     onValidityChange: PropTypes.func,
     onCardTypeChange: PropTypes.func,
     onError: PropTypes.func,
@@ -27,15 +28,15 @@ export default class Braintree extends React.Component {
     this.api = new Api(props);
 
     this.contextValue = {
-      braintreeApi: this.api
+      braintree_api: this.api
     }
   }
 
   componentDidMount() {
     this.api.setAuthorization(this.props.authorization, this.props.onAuthorizationSuccess);
 
-    if (this.props.getTokenRef) {
-      this.props.getTokenRef(this.api.tokenize.bind(this.api));
+    if (this.props.getTokenizeHostedFieldsRef) {
+      this.props.getTokenizeHostedFieldsRef(this.api.tokenizeHostedFields.bind(this.api));
     }
   }
 

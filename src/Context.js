@@ -1,5 +1,5 @@
 import React from 'react';
 
 export const Context = React.createContext({
-  braintreeApi: null
+  braintree_api: null
 });

@@ -1,7 +1,13 @@
-import Braintree from './braintree.jsx'
-import HostedField from './field.jsx'
+import Braintree from './Braintree.jsx'
+import HostedField from './HostedField.jsx'
+import PayPalButton from './PayPalButton.jsx';
+import GooglePayButton from './GooglePayButton.jsx';
+import ApplePayButton from './ApplePayButton.jsx';
 
 export {
   Braintree,
   HostedField,
+  PayPalButton,
+  GooglePayButton,
+  ApplePayButton
 }
