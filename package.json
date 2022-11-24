@@ -1,0 +1,28 @@
+{
+  "name": "react-braintree-components",
+  "version": "1.0.0",
+  "description": "React components for Braintree integration, including HostedFields, PayPal, Apple Pay and Google Pay.",
+  "browser": "dist/build.full.js",
+  "main": "dist/build.full.js",
+  "module": "dist/build.module.js",
+  "jsnext:main": "dist/build.module.js",
+  "peerDependencies": {
+    "react": "18.2.0"
+  },
+  "scripts": {
+    "build": "rollup -c --bundleConfigAsCjs"
+  },
+  "dependencies": {
+    "braintree-web": "^3.88.4"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.2",
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
+    "@babel/preset-env": "^7.20.2",
+    "@babel/preset-react": "^7.18.6",
+    "babelrc-rollup": "^3.0.0",
+    "prop-types": "^15.8.1",
+    "rollup": "^3.4.0",
+    "@rollup/plugin-babel": "^6.0.2"
+  }
+}
