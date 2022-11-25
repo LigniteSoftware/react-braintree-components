@@ -109,6 +109,7 @@ export default class BraintreeClientApi {
   /*
   GENERAL
   */
+
   nextFieldId() {
     this._next_field_id += 1;
     return this._next_field_id;
@@ -126,11 +127,7 @@ export default class BraintreeClientApi {
 
     this.paypal_button_id = `#${id}`;
 
-    const onRenderComplete = () => {
-      console.log(`PayPal button render complete!`);
-    }
-
-    return [ id, onRenderComplete ];
+    return id;
   }
 
   createPayPalButton(){
@@ -152,8 +149,6 @@ export default class BraintreeClientApi {
           return console.error(`Error setting up PayPal SDK:`, sdk_error);
         }
   
-        console.warn(`PAYPAL SDK LOADED!`);
-
         this.setUpPayPalButton();
       });
     });
@@ -172,8 +167,6 @@ export default class BraintreeClientApi {
       fundingSource: window.paypal.FUNDING.PAYPAL,
   
       createOrder: () => {
-        // setDeclineError(true, false);
-
         return this.paypal.createPayment({
           flow: 'checkout',
           amount: parseFloat(69.00),
@@ -185,8 +178,6 @@ export default class BraintreeClientApi {
       },
   
       onApprove: (data, actions) => {
-        // setAlternatePaymentProcessing(true);
-  
         return this.paypal.tokenizePayment(data, (token_error, payload) => {
           if(token_error){
             this.onError(token_error);
@@ -196,24 +187,14 @@ export default class BraintreeClientApi {
           let billing = payload.details;
           let shipping = payload.details.shippingAddress;
 
-          this.onToken(payload.nonce);
-  
-          console.warn(`PayPal approved. make payment request!`);
-
-          // makePaymentRequest(true, payload.nonce, {
-          //   name: `${billing.firstName} ${billing.lastName || ''}`,
-          //   email: billing.email.toLowerCase(),
-          //   address: {
-          //     country: shipping.countryCode,
-          //     postal_code: shipping.postalCode
-          //   }
-          // }, function(lazarus_error){
-          //   if(lazarus_error){
-          //     showErrorMessage(`{{{ hasNewlines lang.purchase.payment_error_generic }}} ${lazarus_error}`);
-          //   }
-  
-          //   setAlternatePaymentProcessing(false);
-          // });
+          this.onPaymentData('paypal', payload.nonce, {
+            name: `${billing.firstName} ${billing.lastName || ''}`,
+            email: billing.email.toLowerCase(),
+            address: {
+              country: shipping.countryCode,
+              postal_code: shipping.postalCode
+            }
+          });
         });
       },
   
@@ -225,9 +206,9 @@ export default class BraintreeClientApi {
         this.onError(generic_error);
       }
     }).render(this.paypal_button_id).then(() => {
-      document.querySelector(this.paypal_button_id).hidden = false;
-  
-      // showCreditCardTitle();
+      if(this.wrapper_handlers.onPaymentMethodReady){
+        this.wrapper_handlers.onPaymentMethodReady('paypal');
+      }
     });
   }
 
@@ -238,11 +219,7 @@ export default class BraintreeClientApi {
 
     this.google_pay_button_id = `#${id}`;
 
-    const onRenderComplete = () => {
-      console.log(`Google Pay button render complete!`);
-    }
-
-    return [ id, onRenderComplete ];
+    return id;
   }
 
   createGooglePayButton(){
@@ -260,19 +237,17 @@ export default class BraintreeClientApi {
         if (ready_to_pay.result) {
           this.google_pay = gpay_instance;
         }
-  
-        console.log(ready_to_pay);
 
         document.querySelector(this.google_pay_button_id).onclick = this.googlePayButtonClicked.bind(this);
+
+        if(this.wrapper_handlers.onPaymentMethodReady){
+          this.wrapper_handlers.onPaymentMethodReady('google_pay');
+        }
       });
     });
   }
 
   googlePayButtonClicked(){
-    console.log('Google Pay please!');
-
-    // setDeclineError(true, false);
-
     let payment_data_request = this.google_pay.createPaymentDataRequest({
       transactionInfo: {
         currencyCode: 'USD',
@@ -289,43 +264,28 @@ export default class BraintreeClientApi {
       phoneNumberRequired: false
     };
 
-    console.log(payment_data_request);
-
     window.google_pay_client.loadPaymentData(payment_data_request).then((payment_data) => {
-      // setAlternatePaymentProcessing(true);
-
-      console.log(payment_data);
-
       this.google_pay.parseResponse(payment_data, (error, payload) => {
         console.log(error, payload);
 
         if (error) {
           this.onError(error);
-          // showErrorMessage(`{{{ hasNewlines lang.purchase.google_pay_error_js_exception }}} ${error}`);
           return;
         }
 
         let billing = payment_data.paymentMethodData.info.billingAddress;
-        console.log(`gpay payment request!`);
-
-        this.onToken(payload.nonce);
-        // makePaymentRequest(true, payload.nonce, {
-        //   name: billing.name,
-        //   email: payment_data.email.toLowerCase(),
-        //   address: {
-        //     country: billing.countryCode,
-        //     postal_code: billing.postalCode
-        //   }
-        // }, function(lazarus_error){
-        //   setAlternatePaymentProcessing(false);
-
-        //   if(lazarus_error){
-        //     showErrorMessage(`{{{ hasNewlines lang.purchase.google_pay_error_js_exception }}} ${lazarus_error}`);
-        //   }
-        // });
+        this.onPaymentData('google_pay', payload.nonce, {
+          name: billing.name,
+          email: payment_data.email.toLowerCase(),
+          address: {
+            country: billing.countryCode,
+            postal_code: billing.postalCode
+          }
+        });
       })
     }).catch((exception) => {
       console.warn(`Google Pay`, exception);
+      this.onError(exception);
     });
   }
 
@@ -336,11 +296,7 @@ export default class BraintreeClientApi {
 
     this.apple_pay_button_id = `#${id}`;
 
-    const onRenderComplete = () => {
-      console.log(`Apple Pay button render complete!`);
-    }
-
-    return [ id, onRenderComplete ];
+    return id;
   }
 
   applePaySupported(){
@@ -348,8 +304,6 @@ export default class BraintreeClientApi {
   }
 
   createApplePayButton(){
-    console.log(`apple pay supported: `, this.applePaySupported());
-
     let button = document.querySelector(this.apple_pay_button_id);
     if(!this.applePaySupported()){
       button.hidden = true;
@@ -369,7 +323,9 @@ export default class BraintreeClientApi {
 
       button.onclick = this.showApplePaySheet.bind(this);
 
-      showCreditCardTitle();
+      if(this.wrapper_handlers.onPaymentMethodReady){
+        this.wrapper_handlers.onPaymentMethodReady('apple_pay');
+      }
     });
   }
 
@@ -382,8 +338,6 @@ export default class BraintreeClientApi {
   }
 
   showApplePaySheet(){
-    // setDeclineError(true, false);
-
     let payment_request = this.apple_pay.createPaymentRequest({
       lineItems: this.getLineItems(),
       total: {
@@ -409,7 +363,6 @@ export default class BraintreeClientApi {
         if (error) {
           console.error(`Error validating merchant session:`, error)
           this.onError(error);
-          // showErrorMessage(`{{ lang.purchase.apple_pay_error_unable_to_validate }}\n\n{{{ lang.purchase.payment_error_generic }}} ${error}`);
           return;
         }
         session.completeMerchantValidation(merchant_session);
@@ -424,31 +377,22 @@ export default class BraintreeClientApi {
           console.error('Error tokenising Apple Pay:', error);
           session.completePayment(ApplePaySession.STATUS_FAILURE);
           this.onError(error);
-          // showErrorMessage(`{{{ hasNewlines lang.purchase.apple_pay_error_failed_tokenisation }}}\n\n{{{ lang.purchase.payment_error_generic }}} ${error}`);
           return;
         }
 
         let billing = event.payment.billingContact;
         let shipping = event.payment.shippingContact;
-        console.log(`apple pay payment!`, billing);
 
-        this.onToken(payload.nonce);
+        this.onPaymentData('apple_pay', payload.nonce, {
+          name: `${shipping.givenName} ${shipping.familyName}`,
+          email: shipping.emailAddress.toLowerCase(),
+          address: {
+            country: billing.countryCode,
+            postal_code: billing.postalCode
+          }
+        });
 
         session.completePayment(ApplePaySession.STATUS_SUCCESS);
-        // makePaymentRequest(true, payload.nonce, {
-        //   name: `${shipping.givenName} ${shipping.familyName}`,
-        //   email: shipping.emailAddress.toLowerCase(),
-        //   address: {
-        //     country: billing.countryCode,
-        //     postal_code: billing.postalCode
-        //   }
-        // }, function(lazarus_error){
-        //   session.completePayment(lazarus_error ? ApplePaySession.STATUS_FAILURE : ApplePaySession.STATUS_SUCCESS);
-
-        //   if(lazarus_error){
-        //     showErrorMessage(`{{{ hasNewlines lang.purchase.apple_pay_error_js_exception }}} ${lazarus_error}`);
-        //   }
-        // });
       });
     };
 
@@ -516,6 +460,10 @@ export default class BraintreeClientApi {
       events.forEach((event_name) => {
         hosted_fields.on(event_name, ev => this.onFieldEvent(`on${capitalise(event_name)}`, ev));
       });
+
+      if(this.wrapper_handlers.onPaymentMethodReady){
+        this.wrapper_handlers.onPaymentMethodReady('card');
+      }
     })
   }
 
@@ -551,11 +499,10 @@ export default class BraintreeClientApi {
     this.hosted_fields.tokenize((error, payload) => {
       if (error) {
         this.onError(error);
-        reject(error);
         return;
       }
   
-      this.onToken(payload.nonce);
+      this.onPaymentData('card', payload.nonce);
     });
   }
 
@@ -564,26 +511,29 @@ export default class BraintreeClientApi {
   DATA HANDLING
   */
 
-  onToken(nonce){
+  onPaymentData(source, nonce, customer_info){
     if(!nonce){
-      this.onError(`Nonce is null!`);
+      this.onError('Nonce is null');
       return;
     }
 
-    if(this.wrapper_handlers.onToken){
-      this.wrapper_handlers.onToken(nonce);
+    if(this.wrapper_handlers.onPaymentData){
+      this.wrapper_handlers.onPaymentData(source, nonce, customer_info);
     }
   }
 
-  onError(error) {
-    if (!error) {
+  onError(...errors) {
+    if (errors.length === 0) {
       return;
     }
 
-    console.error(error);
+    console.error(`Braintree error: ${errors.join(' ')}`);
 
     if (this.wrapper_handlers.onError) {
-      this.wrapper_handlers.onError(error);
+      this.wrapper_handlers.onError(errors.join(' '));
+    }
+    else{
+      console.warn('(No error handler!)')
     }
   }
 }

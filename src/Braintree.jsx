@@ -6,13 +6,19 @@ import { Context } from './Context'
 export default class Braintree extends React.Component {
   static propTypes = {
     children: PropTypes.node.isRequired,
+
     onAuthorizationSuccess: PropTypes.func,
     authorization: PropTypes.string,
+
     getTokenizeHostedFieldsRef: PropTypes.func,
-    onToken: PropTypes.func,
+
+    onPaymentMethodReady: PropTypes.func,
+
+    onPaymentData: PropTypes.func,
     onValidityChange: PropTypes.func,
     onCardTypeChange: PropTypes.func,
     onError: PropTypes.func,
+
     styles: PropTypes.object,
     className: PropTypes.string,
     tagName: PropTypes.string,

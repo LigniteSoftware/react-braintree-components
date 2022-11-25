@@ -25,6 +25,6 @@ export default class PaymentComponent extends React.Component {
       return null;
     }
 
-    return <div id={ field_id } className={ this.className }/>;
+    return <div id={ field_id } className={ this.className } hidden={this.props.hidden}/>;
   }
 }
