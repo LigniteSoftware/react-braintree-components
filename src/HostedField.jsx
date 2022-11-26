@@ -15,6 +15,7 @@ export default class HostedField extends PaymentComponent {
     onFocus: PropTypes.func,
     onEmpty: PropTypes.func,
     onBlur: PropTypes.func,
+    onInputSubmitRequest: PropTypes.func,
     prefill: PropTypes.string,
   }
 

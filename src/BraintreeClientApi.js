@@ -453,8 +453,13 @@ export default class BraintreeClientApi {
       this.hosted_fields = hosted_fields;
 
       let events = [
-        'blur', 'focus', 'empty', 'notEmpty',
-        'cardTypeChange', 'validityChange',
+        'blur', 
+        'focus', 
+        'empty', 
+        'notEmpty',
+        'cardTypeChange', 
+        'validityChange', 
+        'inputSubmitRequest'
       ];
 
       events.forEach((event_name) => {
@@ -487,7 +492,7 @@ export default class BraintreeClientApi {
     const field_handlers = this.field_handlers[event.emittedBy];
 
     if (field_handlers && field_handlers[event_name]) {
-      field_handlers[event_name](event.fields[event.emittedBy], event);
+      field_handlers[event_name](event_name, event);
     }
 
     if (this.wrapper_handlers[event_name]) {
