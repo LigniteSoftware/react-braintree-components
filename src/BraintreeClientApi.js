@@ -1,10 +1,9 @@
-import Braintree from 'braintree-web/client'
-import HostedFields from 'braintree-web/hosted-fields'
+import Braintree from 'braintree-web/client';
+import HostedFields from 'braintree-web/hosted-fields';
 import PayPalCheckout from 'braintree-web/paypal-checkout';
 import GooglePayment from 'braintree-web/google-payment';
 import ApplePay from 'braintree-web/apple-pay';
-import BraintreeDataCollector from 'braintree-web/data-collector'
-import BraintreeThreeDSecure from 'braintree-web/three-d-secure'
+import DataCollector from 'braintree-web/data-collector';
 
 function capitalise(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
@@ -87,18 +86,8 @@ export default class BraintreeClientApi {
             this.createApplePayButton();
           }
 
-          if (this.wrapper_handlers.onThreeDSecureReady) {
-            BraintreeThreeDSecure.create({
-              client: client_instance,
-              version: 2,
-            }, this.wrapper_handlers.onThreeDSecureReady);
-          }
-
-          if (this.wrapper_handlers.onDataCollectorInstanceReady) {
-            BraintreeDataCollector.create({
-              client: client_instance,
-              kount: true,
-            }, this.wrapper_handlers.onDataCollectorInstanceReady);
+          if(this.wrapper_handlers.onDeviceData){
+            this.collectDeviceData();
           }
         }
       })
@@ -522,6 +511,21 @@ export default class BraintreeClientApi {
   /*
   DATA HANDLING
   */
+
+  collectDeviceData(){
+    DataCollector.create({
+      client: this.client,
+      paypal: true
+    }, (error, data_collector_instance) => {
+      if(error){
+        return this.onError(error);
+      }
+
+      if(this.wrapper_handlers.onDeviceData){
+        this.wrapper_handlers.onDeviceData(data_collector_instance.deviceData);
+      }
+    });
+  }
 
   onPaymentData(source, nonce, customer_info){
     if(!nonce){
