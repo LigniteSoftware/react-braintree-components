@@ -488,6 +488,13 @@ export default class BraintreeClientApi {
     });
   }
 
+  removeAttribute(field_type, name) {
+    this.hosted_fields.removeAttribute({
+      field: field_type,
+      attribute: name
+    });
+  }
+
   onFieldEvent(event_name, event) {
     const field_handlers = this.field_handlers[event.emittedBy];
 

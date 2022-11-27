@@ -10,7 +10,7 @@ export default class Braintree extends React.Component {
     onAuthorizationSuccess: PropTypes.func,
     authorization: PropTypes.string,
 
-    getTokenizeHostedFieldsRef: PropTypes.func,
+    getBraintreeApiRef: PropTypes.func,
 
     onPaymentMethodReady: PropTypes.func,
 
@@ -41,8 +41,8 @@ export default class Braintree extends React.Component {
   componentDidMount() {
     this.api.setAuthorization(this.props.authorization, this.props.onAuthorizationSuccess);
 
-    if (this.props.getTokenizeHostedFieldsRef) {
-      this.props.getTokenizeHostedFieldsRef(this.api.tokenizeHostedFields.bind(this.api));
+    if (this.props.getBraintreeApiRef) {
+      this.props.getBraintreeApiRef(this.api);
     }
   }
 
