@@ -16,7 +16,7 @@ export default class Braintree extends React.Component {
 
     onDeviceData: PropTypes.func,
     onPaymentData: PropTypes.func,
-    
+
     onValidityChange: PropTypes.func,
     onCardTypeChange: PropTypes.func,
     onError: PropTypes.func,

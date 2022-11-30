@@ -192,6 +192,7 @@ export default class BraintreeClientApi {
       },
   
       onError: (generic_error) => {
+        console.log(`PayPal generic error`);
         this.onError(generic_error);
       }
     }).render(this.paypal_button_id).then(() => {
@@ -258,7 +259,7 @@ export default class BraintreeClientApi {
         console.log(error, payload);
 
         if (error) {
-          this.onError(error);
+          this.onError(error.statusCode);
           return;
         }
 
@@ -273,8 +274,9 @@ export default class BraintreeClientApi {
         });
       })
     }).catch((exception) => {
-      console.warn(`Google Pay`, exception);
-      this.onError(exception);
+      if(exception.statusCode !== 'CANCELED'){
+        this.onError(exception.statusCode || exception);
+      }
     });
   }
 
@@ -543,7 +545,7 @@ export default class BraintreeClientApi {
       return;
     }
 
-    console.error(`Braintree error: ${errors.join(' ')}`);
+    console.error(`Braintree error: `, errors);
 
     if (this.wrapper_handlers.onError) {
       this.wrapper_handlers.onError(errors.join(' '));
