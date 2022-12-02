@@ -331,8 +331,13 @@ export default class BraintreeClientApi {
 
   getLineItems(){
     return [{
-      label: 'sandbox product',
-      amount: '1.01',
+      label: this.wrapper_handlers.getProductName(),
+      amount: (this.wrapper_handlers.getPrice() / 100).toFixed(2),
+      type: 'final'
+    }, 
+    {
+      label: 'Taxes',
+      amount: '0.00',
       type: 'final'
     }];
   }
@@ -342,7 +347,7 @@ export default class BraintreeClientApi {
       lineItems: this.getLineItems(),
       total: {
         label: 'Lignite',
-        amount: '1.01'
+        amount: (this.wrapper_handlers.getPrice() / 100).toFixed(2)
       },
 
       requiredBillingContactFields: [
