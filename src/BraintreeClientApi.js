@@ -156,9 +156,13 @@ export default class BraintreeClientApi {
       fundingSource: window.paypal.FUNDING.PAYPAL,
   
       createOrder: () => {
+        let amount = parseFloat(this.wrapper_handlers.getPrice() / 100);
+
+        console.log(`amount is `, amount, typeof amount);
+
         return this.paypal.createPayment({
           flow: 'checkout',
-          amount: parseFloat(69.00),
+          amount: amount,
           currency: 'USD',
           intent: 'capture',
           enableShippingAddress: false, 
@@ -193,6 +197,9 @@ export default class BraintreeClientApi {
   
       onError: (generic_error) => {
         console.log(`PayPal generic error`);
+        if(generic_error.message === 'Detected popup close'){
+          generic_error.message = 'The PayPal popup was blocked or closed immediately after it opened. Please make sure you are not blocking popups and try again, or use a different payment method.'
+        }
         this.onError(generic_error);
       }
     }).render(this.paypal_button_id).then(() => {
@@ -204,10 +211,12 @@ export default class BraintreeClientApi {
 
   // GOOGLE PAY
 
-  checkInGooglePayButton(){
+  checkInGooglePayButton(props){
     let id = `google-pay-button`;
 
     this.google_pay_button_id = `#${id}`;
+
+    this.google_pay_merchant_id = props.merchantId;
 
     return id;
   }
@@ -216,7 +225,7 @@ export default class BraintreeClientApi {
     GooglePayment.create({
       client: this.client,
       googlePayVersion: 2,
-      // googleMerchantId: 'merchant_id'
+      googleMerchantId: this.google_pay_merchant_id
     }, (error, gpay_instance) => {
       window.google_pay_client.isReadyToPay({
         apiVersion: 2,
@@ -242,7 +251,7 @@ export default class BraintreeClientApi {
       transactionInfo: {
         currencyCode: 'USD',
         totalPriceStatus: 'FINAL',
-        totalPrice: '0.99'
+        totalPrice: (this.wrapper_handlers.getPrice() / 100).toString()
       },
       emailRequired: true
     });

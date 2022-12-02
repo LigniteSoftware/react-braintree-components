@@ -12,6 +12,8 @@ export default class Braintree extends React.Component {
 
     getBraintreeApiRef: PropTypes.func,
 
+    getPrice: PropTypes.func,
+
     onPaymentMethodReady: PropTypes.func,
 
     onDeviceData: PropTypes.func,
@@ -34,17 +36,10 @@ export default class Braintree extends React.Component {
     super(props);
 
     this.api = new Api(props);
+    this.delivered_ref = false;
 
     this.contextValue = {
       braintree_api: this.api
-    }
-  }
-
-  componentDidMount() {
-    this.api.setAuthorization(this.props.authorization, this.props.onAuthorizationSuccess);
-
-    if (this.props.getBraintreeApiRef) {
-      this.props.getBraintreeApiRef(this.api);
     }
   }
 
@@ -53,7 +48,14 @@ export default class Braintree extends React.Component {
   }
 
   componentDidUpdate() {
-    this.api.setAuthorization(this.props.authorization, this.props.onAuthorizationSuccess);
+    if(this.props.ready){
+      this.api.setAuthorization(this.props.authorization, this.props.onAuthorizationSuccess);
+
+      if (this.props.getBraintreeApiRef && !this.delivered_ref) {
+        this.props.getBraintreeApiRef(this.api);
+        this.delivered_ref = true;
+      }
+    }
   }
 
   tokenize(options) {
@@ -61,6 +63,10 @@ export default class Braintree extends React.Component {
   }
 
   render() {
+    if(!this.props.ready){
+      return;
+    }
+
     const {
       className: providedClass,
       tagName: Tag
