@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "outDir": "lib",
+    "target": "ES6",          
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "sourceMap": true,
+    "strict": true,
+    "declaration": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "baseUrl": "src/"
+  },
+  "include": [
+    "src/**/*"
+  ]
+}
