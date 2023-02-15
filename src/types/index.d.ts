@@ -17,11 +17,13 @@ interface BraintreeCustomerInfo {
   }
 }
 
+export type PaymentMethodType =  'card' | 'paypal' | 'googlePay' | 'applePay';
+
 type VoidCallback = () => void;
 type VoidApiCallback = (api: BraintreeClientApi) => void;
 type VoidNumberCallback = () => number;
 type VoidStringCallback = () => string;
-type PaymentMethodReadyHandler = (methodName: string) => void;
+type PaymentMethodReadyHandler = (methodName: PaymentMethodType) => void;
 type DeviceDataHandler = (deviceData: string) => void;
 type PaymentDataHandler = (source: string, nonce: string, customerInfo: BraintreeCustomerInfo) => void;
 type BraintreeEventHandler = (eventName: string, event: Event) => void;

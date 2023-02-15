@@ -6,9 +6,10 @@ import * as Braintree from 'braintree-web';
 
 import { GooglePayButtonProps } from 'GooglePayButton';
 import { BraintreeCustomerInfo } from 'types';
-import { HostedFieldsEventTypeMap, HostedFieldsHostedFieldsFieldName } from 'braintree-web/modules/hosted-fields';
+import { HostedFieldAttributeName, HostedFieldsEventTypeMap, HostedFieldsHostedFieldsFieldName } from 'braintree-web/modules/hosted-fields';
 import { HostedFieldProps } from 'HostedField';
-import { FlowType, Intent } from 'paypal-checkout-components';
+import { ButtonColorOption, ButtonLabelOption, ButtonShapeOption, ButtonSizeOption, FlowType, Intent } from 'paypal-checkout-components';
+import { FundingOption } from 'paypal-checkout-components/modules/button';
 
 function capitalize(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
@@ -248,7 +249,7 @@ export default class BraintreeClientApi {
         this.onError('Error setting up PayPal:', error);
         return;
       }
-  
+
       this.paypal = instance;
   
       this.paypal?.loadPayPalSDK({
@@ -258,7 +259,7 @@ export default class BraintreeClientApi {
         if(sdk_error){
           return console.error(`Error setting up PayPal SDK:`, sdk_error);
         }
-  
+
         this.setUpPayPalButton();
       });
     });
@@ -269,16 +270,16 @@ export default class BraintreeClientApi {
    */
   setUpPayPalButton(){
     window.paypal.Buttons({
-      // style: {
-      //   size: 'large',
-      //   height: 55,
-      //   shape: 'rect',
-      //   color: 'blue',
-      //   layout: 'horizontal'
-      // },
-  
-      // fundingSource: window.paypal.FUNDING.PAYPAL,
-  
+      style: {
+        size: 'large' as ButtonSizeOption,
+        height: 55,
+        shape: 'rect' as ButtonShapeOption,
+        color: 'blue' as ButtonColorOption,
+        label: 'checkout' as ButtonLabelOption,
+        tagline: false
+      },
+      fundingSource: 'paypal',
+
       createOrder: () => {
         let amount = this.callbacks.getPrice() / 100;
 
@@ -291,7 +292,7 @@ export default class BraintreeClientApi {
           shippingAddressEditable: false
         });
       },
-  
+
       onApprove: (data) => {
         return new Promise((resolve, reject) => {
           this.paypal!.tokenizePayment(data, (token_error, payload) => {
@@ -370,10 +371,8 @@ export default class BraintreeClientApi {
           this.googlePay = gpay_instance;
         }
 
-        // document.querySelector(this.googlePayButtonId!)!.onclick = this.googlePayButtonClicked.bind(this);
-
         if(this.callbacks.onPaymentMethodReady){
-          this.callbacks.onPaymentMethodReady('google_pay');
+          this.callbacks.onPaymentMethodReady('googlePay');
         }
       });
     });
@@ -382,7 +381,7 @@ export default class BraintreeClientApi {
   /**
    * Handler for when the Google Pay button is clicked on by the customer.
    */
-  async googlePayButtonClicked(){
+  async showGooglePaySheet(){
     let payment_data_request = await this.googlePay?.createPaymentDataRequest({
       transactionInfo: {
         currencyCode: 'USD',
@@ -429,7 +428,7 @@ export default class BraintreeClientApi {
           return;
         }
 
-        this.onPaymentData('google_pay', payload.nonce, {
+        this.onPaymentData('googlePay', payload.nonce, {
           name: billing.name!,
           email: email.toLowerCase(),
           address: {
@@ -462,18 +461,19 @@ export default class BraintreeClientApi {
    * Get whether or not Apple Pay is supported on the customer's browser.
    */
   applePaySupported(){
-    return window.ApplePaySession && Braintree.ApplePaySession.supportsVersion(3) && Braintree.ApplePaySession.canMakePayments();
+    return window.ApplePaySession && Braintree.ApplePaySession && Braintree.ApplePaySession.supportsVersion(3) && Braintree.ApplePaySession.canMakePayments();
   }
 
   /**
    * Instantiate the Apple Pay button with the current Braintree client.
    */
   createApplePayButton(){
-    // let button = document.querySelector(this.applePayButtonId);
-    // if(!this.applePaySupported()){
-    //   button.hidden = true;
-    //   return;
-    // }
+    let button = document.querySelector(this.applePayButtonId!);
+    if(!this.applePaySupported()){
+      console.warn(`Apple Pay not supported.`);
+      // button.hidden = true;
+      return;
+    }
 
     Braintree.applePay.create({
       client: this.client!
@@ -486,10 +486,8 @@ export default class BraintreeClientApi {
 
       this.applePay = instance;
 
-      // button.onclick = this.showApplePaySheet.bind(this);
-
       if(this.callbacks.onPaymentMethodReady){
-        this.callbacks.onPaymentMethodReady('apple_pay');
+        this.callbacks.onPaymentMethodReady('applePay');
       }
     });
   }
@@ -576,7 +574,7 @@ export default class BraintreeClientApi {
         let billing = event.payment.billingContact;
         let shipping = event.payment.shippingContact;
 
-        this.onPaymentData('apple_pay', payload.nonce, {
+        this.onPaymentData('applePay', payload.nonce, {
           name: `${shipping.givenName} ${shipping.familyName}`,
           email: shipping.emailAddress.toLowerCase(),
           address: {
@@ -660,9 +658,9 @@ export default class BraintreeClientApi {
         'inputSubmitRequest'
       ];
 
-      // events.forEach((event_name) => {
-      //   hostedFields.on(event_name, ev => this.onFieldEvent(`on${capitalize(event_name)}`, ev));
-      // });
+      events.forEach((event_name) => {
+        hostedFields.on(event_name, ev => this.onFieldEvent(event_name, ev));
+      });
 
       if(this.callbacks.onPaymentMethodReady){
         this.callbacks.onPaymentMethodReady('card');
@@ -694,13 +692,12 @@ export default class BraintreeClientApi {
    * @param name Name of the attribute.
    * @param value Value of the attribute.
    */
-  setAttribute(fieldType: HostedFieldsHostedFieldsFieldName, name: string, value: string) {
-    console.log(`set attribute ${name} to value ${value} on ${fieldType}`);
-    // this.hostedFields?.setAttribute({
-    //   field: fieldType,
-    //   attribute: name,
-    //   value,
-    // });
+  setAttribute(fieldType: HostedFieldsHostedFieldsFieldName, name: HostedFieldAttributeName, value: string | boolean) {
+    this.hostedFields?.setAttribute({
+      field: fieldType,
+      attribute: name,
+      value: value
+    });
   }
 
   /**
@@ -709,12 +706,11 @@ export default class BraintreeClientApi {
    * @param name Name of the attribute.
    * @param value Value of the attribute.
    */
-  removeAttribute(fieldType: HostedFieldsHostedFieldsFieldName, name: string) {
-    console.log(`remove attribute ${name} from ${fieldType}`);
-    // this.hostedFields?.removeAttribute({
-    //   field: fieldType,
-    //   attribute: name
-    // });
+  removeAttribute(fieldType: HostedFieldsHostedFieldsFieldName, name: HostedFieldAttributeName) {
+    this.hostedFields?.removeAttribute({
+      field: fieldType,
+      attribute: name
+    });
   }
 
   /**
@@ -722,16 +718,35 @@ export default class BraintreeClientApi {
    * @param eventName Name of the event that occurred.
    * @param event Event that occurred.
    */
-  onFieldEvent(eventName: keyof HostedFieldsEventTypeMap, event: Braintree.HostedFieldsEvent) {
-    const field_handlers = this.fieldHandlers[event.emittedBy];
-
-    if (field_handlers && field_handlers[eventName]) {
-      field_handlers[eventName](eventName, event);
+  onFieldEvent(eventName: keyof HostedFieldsEventTypeMap, event: Braintree.HostedFieldsEvent | Braintree.HostedFieldsBinPayload) {
+    if(!("emittedBy" in event)){
+      console.error(`Cannot handle HostedFieldsBinPayload event type, rejecting field event.`);
+      return;
     }
 
-    // if (this.callbacks[eventName]) {
-    //   this.callbacks[eventName](event);
-    // }
+    const field_handlers = this.fieldHandlers[event.emittedBy];
+
+    const keyMap = {
+      blur: 'onBlur',
+      focus: 'onFocus',
+      empty: 'onEmpty',
+      notEmpty: 'onNotEmpty',
+      cardTypeChange: 'onCardTypeChange',
+      validityChange: 'onValidityChange',
+      inputSubmitRequest: 'onInputSubmitRequest',
+      binAvailable: 'onBinAvailable',
+    }
+
+    if (field_handlers && field_handlers[keyMap[eventName]]) {
+      field_handlers[keyMap[eventName]](eventName, event);
+    }
+
+    if (this.callbacks[keyMap[eventName]]) {
+      let callback = this.callbacks[keyMap[eventName]];
+      if(callback){
+        callback(event);
+      }
+    }
   }
 
   /**

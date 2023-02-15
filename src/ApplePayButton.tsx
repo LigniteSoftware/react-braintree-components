@@ -1,11 +1,15 @@
-import PaymentComponent from './PaymentComponent';
+import { PropsWithChildren } from 'react';
+import PaymentComponent, { PaymentComponentProps } from './PaymentComponent';
 
-export default class ApplePayButton extends PaymentComponent<{}> {
+export default class ApplePayButton extends PaymentComponent<PropsWithChildren<PaymentComponentProps>> {
+  clicked(): void {
+    super.clicked();
+    this.context.braintreeApi?.showApplePaySheet();
+  }
+
   componentDidMount() {
-    const field_id = this.context.braintreeApi?.checkInApplePayButton();
-
     this.setState({
-      field_id
+      fieldId: this.context.braintreeApi?.checkInApplePayButton()
     });
   }
 }

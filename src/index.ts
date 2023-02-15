@@ -5,6 +5,7 @@ import PayPalButton from './PayPalButton';
 import GooglePayButton from './GooglePayButton';
 import ApplePayButton from './ApplePayButton';
 import BraintreeClientApi from './BraintreeClientApi';
+import { PaymentMethodType } from 'types';
 
 export {
   Braintree,
@@ -12,5 +13,6 @@ export {
   PayPalButton,
   GooglePayButton,
   ApplePayButton,
-  BraintreeClientApi
+  BraintreeClientApi,
+  PaymentMethodType
 }

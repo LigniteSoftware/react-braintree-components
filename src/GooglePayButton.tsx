@@ -5,11 +5,16 @@ export interface GooglePayButtonProps extends PaymentComponentProps {
 }
 
 export default class GooglePayButton extends PaymentComponent<GooglePayButtonProps> {
+  clicked(): void {
+    super.clicked();
+    this.context.braintreeApi?.showGooglePaySheet();
+  }
+
   componentDidMount() {
     const field_id = this.context.braintreeApi?.checkInGooglePayButton(this.props);
-
+    
     this.setState({
-      field_id
+      fieldId: field_id
     });
   }
 }

@@ -60,7 +60,7 @@ export default class HostedField extends PaymentComponent<HostedFieldProps> {
     const onRenderComplete = results?.onRenderComplete;
 
     this.setState({
-      field_id
+      fieldId: field_id
     }, onRenderComplete);
   }
 }

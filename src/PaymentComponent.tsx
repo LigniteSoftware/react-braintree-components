@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import { Context } from './Context'
 
 export interface PaymentComponentProps {
@@ -7,30 +7,25 @@ export interface PaymentComponentProps {
 }
 
 interface PaymentComponentState {
-  field_id?: string;
+  fieldId?: string;
 }
 
-export default class PaymentComponent<T extends PaymentComponentProps> extends React.Component<T, PaymentComponentState> {
+export default class PaymentComponent<T extends PropsWithChildren<PaymentComponentProps>> extends React.Component<T, PaymentComponentState> {
   static contextType = Context;
   declare context: React.ContextType<typeof Context>;
 
   state: PaymentComponentState = {};
 
-  get className() {
-    const list = [ '' ];
-
-    if (this.props.className) {
-      list.push(this.props.className);
-    }
-    
-    return list.join(' ');
-  }
+  /**
+   * Button was clicked.
+   */
+  clicked(){}
 
   render() {
-    if (!this.state.field_id) {
+    if (!this.state.fieldId) {
       return null;
     }
 
-    return <div id={ this.state.field_id } className={ this.className } hidden={this.props.hidden}/>;
+    return <div id={ this.state.fieldId } className={ this.props.className } hidden={ this.props.hidden } onClick={this.clicked.bind(this)}/>;
   }
 }
