@@ -288,7 +288,7 @@ export default class BraintreeClientApi {
           amount: amount,
           currency: 'USD',
           intent: 'capture' as Intent,
-          enableShippingAddress: false, 
+          enableShippingAddress: true, 
           shippingAddressEditable: false
         });
       },
@@ -308,7 +308,7 @@ export default class BraintreeClientApi {
               name: `${billing.firstName} ${billing.lastName || ''}`,
               email: billing.email.toLowerCase(),
               address: {
-                country: shipping.countryCode,
+                countryCode: shipping.countryCode,
                 postalCode: shipping.postalCode
               }
             });
@@ -432,7 +432,7 @@ export default class BraintreeClientApi {
           name: billing.name!,
           email: email.toLowerCase(),
           address: {
-            country: billing.countryCode,
+            countryCode: billing.countryCode,
             postalCode: billing.postalCode
           }
         });
@@ -578,7 +578,7 @@ export default class BraintreeClientApi {
           name: `${shipping.givenName} ${shipping.familyName}`,
           email: shipping.emailAddress.toLowerCase(),
           address: {
-            country: billing.countryCode,
+            countryCode: billing.countryCode,
             postalCode: billing.postalCode
           }
         });

@@ -12,7 +12,7 @@ interface BraintreeCustomerInfo {
   name: string;
   email: string;
   address: {
-    country: string;
+    countryCode: string;
     postalCode: string;
   }
 }
