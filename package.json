@@ -14,7 +14,7 @@
     "braintree-web": "^3.88.4"
   },
   "devDependencies": {
-    "@types/braintree-web": "^3.75.22",
+    "@types/braintree-web": "^3.75.23",
     "@types/googlepay": "^0.6.4",
     "@types/node": "^18.13.0",
     "@types/prop-types": "^15.7.5",
