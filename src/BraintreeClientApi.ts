@@ -9,7 +9,6 @@ import { BraintreeCustomerInfo } from 'types';
 import { HostedFieldAttributeName, HostedFieldsEventTypeMap, HostedFieldsHostedFieldsFieldName } from 'braintree-web/modules/hosted-fields';
 import { HostedFieldProps } from 'HostedField';
 import { ButtonColorOption, ButtonLabelOption, ButtonShapeOption, ButtonSizeOption, FlowType, Intent } from 'paypal-checkout-components';
-import { FundingOption } from 'paypal-checkout-components/modules/button';
 
 function capitalize(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
@@ -167,10 +166,14 @@ export default class BraintreeClientApi {
 
       // Reset any already existing auth
       if (this.authorization) {
-        this.teardown();
+        // this.teardown();
+        console.warn('Rejecting duplicate Braintree client creation');
+        return;
       }
 
       this.authorization = authorization;
+
+      console.log(`Creating Braintree client`);
 
       // Create client
       Braintree.client.create({
@@ -457,21 +460,23 @@ export default class BraintreeClientApi {
     return id;
   }
 
+  // applePaySession(){
+  //   return window.ApplePaySession as ApplePaySession;
+  // }
+
   /**
    * Get whether or not Apple Pay is supported on the customer's browser.
    */
   applePaySupported(){
-    return window.ApplePaySession && Braintree.ApplePaySession && Braintree.ApplePaySession.supportsVersion(3) && Braintree.ApplePaySession.canMakePayments();
+    return ApplePaySession && ApplePaySession.supportsVersion(3) && ApplePaySession.canMakePayments();
   }
 
   /**
    * Instantiate the Apple Pay button with the current Braintree client.
    */
   createApplePayButton(){
-    let button = document.querySelector(this.applePayButtonId!);
     if(!this.applePaySupported()){
       console.warn(`Apple Pay not supported.`);
-      // button.hidden = true;
       return;
     }
 
@@ -514,7 +519,7 @@ export default class BraintreeClientApi {
    * Show the Apple Pay payment sheet for customer interaction.
    */
   showApplePaySheet(){
-    let payment_request = this.applePay?.createPaymentRequest({
+    let session = new ApplePaySession(3, {
       lineItems: this.getLineItems(),
       total: {
         label: 'Lignite',
@@ -527,15 +532,16 @@ export default class BraintreeClientApi {
       requiredShippingContactFields: [
         'name',
         'email'
-      ]
+      ],
+      countryCode: 'US',
+      currencyCode: 'USD',
+      merchantCapabilities: [
+        'supports3DS',
+        'supportsCredit',
+        'supportsDebit'
+      ],
+      supportedNetworks: [ 'amex', 'mastercard', 'visa' ]
     });
-
-    if(!payment_request){
-      this.onError(`Failed to create Apple Pay payment request.`);
-      return;
-    }
-
-    let session = new Braintree.ApplePaySession(3, payment_request);
 
     // Merchant was validated by Apple's servers
     session.onvalidatemerchant = (event) => {
@@ -571,15 +577,15 @@ export default class BraintreeClientApi {
           return;
         }
 
-        let billing = event.payment.billingContact;
-        let shipping = event.payment.shippingContact;
+        let billing = event.payment.billingContact!;
+        let shipping = event.payment.shippingContact!;
 
         this.onPaymentData('applePay', payload.nonce, {
           name: `${shipping.givenName} ${shipping.familyName}`,
-          email: shipping.emailAddress.toLowerCase(),
+          email: shipping.emailAddress!.toLowerCase(),
           address: {
-            countryCode: billing.countryCode,
-            postalCode: billing.postalCode
+            countryCode: billing.countryCode!,
+            postalCode: billing.postalCode!
           }
         });
 
