@@ -551,7 +551,7 @@ export default class BraintreeClientApi {
       }, (error, merchant_session) => {
         if (error) {
           console.error(`Error validating merchant session:`, error);
-          session.completePayment(Braintree.ApplePaySession.STATUS_FAILURE);
+          session.completePayment(ApplePaySession.STATUS_FAILURE);
           this.onError(error);
           return;
         }
@@ -566,13 +566,13 @@ export default class BraintreeClientApi {
       }, (error, payload) => {
         if (error) {
           console.error('Error tokenising Apple Pay:', error);
-          session.completePayment(Braintree.ApplePaySession.STATUS_FAILURE);
+          session.completePayment(ApplePaySession.STATUS_FAILURE);
           this.onError(error);
           return;
         }
 
         if(!payload){
-          session.completePayment(Braintree.ApplePaySession.STATUS_FAILURE);
+          session.completePayment(ApplePaySession.STATUS_FAILURE);
           this.onError('Failed to get Apple Pay payload.');
           return;
         }
@@ -589,7 +589,7 @@ export default class BraintreeClientApi {
           }
         });
 
-        session.completePayment(Braintree.ApplePaySession.STATUS_SUCCESS);
+        session.completePayment(ApplePaySession.STATUS_SUCCESS);
       });
     };
 
