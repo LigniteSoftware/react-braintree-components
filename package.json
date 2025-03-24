@@ -1,26 +1,30 @@
 {
   "name": "react-braintree-components",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "React components for Braintree integration, including HostedFields, PayPal, Apple Pay and Google Pay.",
   "repository": {
     "type": "git",
-    "url": "http://gitlab.com/lignite/react-braintree-components"
+    "url": "https://github.com/LigniteSoftware/react-braintree-components"
+  },
+  "scripts": {
+    "build": "tsc",
+    "reinstall": "rm -rf node_modules/ package-lock.json && npm i"
   },
   "peerDependencies": {
-    "react": "18.2.0"
+    "react": "19.0.0"
   },
   "dependencies": {
-    "@types/applepayjs": "^3.0.4",
-    "@types/paypal-checkout-components": "^4.0.4",
-    "braintree-web": "^3.88.4"
+    "@types/braintree-web": "^3.75.23",
+    "braintree-web": "^3.116.3"
   },
   "devDependencies": {
-    "@types/braintree-web": "^3.75.23",
+    "@types/applepayjs": "^3.0.4",
     "@types/googlepay": "^0.6.4",
-    "@types/node": "^18.13.0",
+    "@types/node": "^18.19.81",
+    "@types/paypal-checkout-components": "^4.0.4",
     "@types/prop-types": "^15.7.5",
-    "@types/react": "^18.0.27",
-    "@types/react-dom": "^18.0.10",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.4",
     "prop-types": "^15.8.1"
   },
   "files": [

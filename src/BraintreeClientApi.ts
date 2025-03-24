@@ -6,7 +6,7 @@ import * as Braintree from 'braintree-web';
 
 import { GooglePayButtonProps } from 'GooglePayButton';
 import { BraintreeCustomerInfo } from 'types';
-import { HostedFieldAttributeName, HostedFieldsEventTypeMap, HostedFieldsHostedFieldsFieldName } from 'braintree-web/modules/hosted-fields';
+import { HostedFieldAttributeName, HostedFieldsEventTypeMap, HostedFieldsHostedFieldsFieldName } from 'braintree-web/hosted-fields';
 import { HostedFieldProps } from 'HostedField';
 import { ButtonColorOption, ButtonLabelOption, ButtonShapeOption, ButtonSizeOption, FlowType, Intent } from 'paypal-checkout-components';
 

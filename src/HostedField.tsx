@@ -1,6 +1,6 @@
 import PaymentComponent, { PaymentComponentProps } from './PaymentComponent';
 import PropTypes from 'prop-types';
-import { HostedFieldsHostedFieldsFieldName } from 'braintree-web/modules/hosted-fields.js';
+import { HostedFieldsHostedFieldsFieldName } from 'braintree-web/hosted-fields';
 import { BraintreeEventHandler } from 'types/index.js';
 
 export interface HostedFieldProps extends PaymentComponentProps {
