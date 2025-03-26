@@ -14,16 +14,16 @@
     "react": "19.0.0"
   },
   "dependencies": {
-    "@types/braintree-web": "^3.75.23",
-    "braintree-web": "^3.116.3"
+    "@types/braintree-web": "^3.96.17",
+    "braintree-web": "^3.117.1"
   },
   "devDependencies": {
     "@types/applepayjs": "^3.0.4",
+    "@types/node": "^22.13.13",
     "@types/googlepay": "^0.6.4",
-    "@types/node": "^18.19.81",
-    "@types/paypal-checkout-components": "^4.0.4",
-    "@types/prop-types": "^15.7.5",
-    "@types/react": "^19.0.0",
+    "@types/paypal-checkout-components": "^4.0.8",
+    "@types/prop-types": "^15.7.14",
+    "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
     "prop-types": "^15.8.1"
   },
